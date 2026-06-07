@@ -64,9 +64,10 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException(String.format(EMAIL_DUPLICATE_MSG, dto.email()));
         }
 
-        User updatedUser = toUserEntity(dto);
-        updatedUser.setId(id);
-        return toUserDTO(userRepository.save(updatedUser));
+        user.setName(dto.name());
+        user.setEmail(dto.email());
+        user.setAge(dto.age());
+        return toUserDTO(userRepository.save(user));
     }
 
     @Override

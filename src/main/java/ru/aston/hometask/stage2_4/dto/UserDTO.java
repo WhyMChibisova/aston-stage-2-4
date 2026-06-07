@@ -14,7 +14,7 @@ public record UserDTO(
         @Size(max = 100, message = "Name can't contain more than 100 characters")
         String name,
 
-        @NotNull
+        @NotBlank(message = "Email can't be blank")
         @Email
         @Size(max = 100, message = "Email can't contain more than 100 characters")
         String email,
