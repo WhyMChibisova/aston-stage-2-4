@@ -13,6 +13,7 @@ import ru.aston.hometask.stage2_4.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.aston.hometask.stage2_4.mapper.UserMapper.toUserDTO;
@@ -20,7 +21,7 @@ import static ru.aston.hometask.stage2_4.mapper.UserMapper.toUserEntity;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private static final String USER_NOT_FOUND_MSG = "User not found: %d";
+    private static final String USER_NOT_FOUND_MSG = "User not found: %s";
     private static final String EMAIL_DUPLICATE_MSG = "User email already exists: %s";
 
     @Autowired
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDTO getById(Long id) {
+    public UserDTO getById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
         return toUserDTO(user);
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO update(Long id, UserDTO dto) {
+    public UserDTO update(UUID id, UserDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
         Optional<User> userByEmail = userRepository.findByEmail(dto.email());
@@ -72,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id));
         }

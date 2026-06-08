@@ -22,6 +22,7 @@ import ru.aston.hometask.stage2_4.service.UserService;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.containsString;
@@ -43,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 class UserControllerTest {
     private static final String END_POINT = "/api/users";
-    private static final String USER_NOT_FOUND_MSG = "User not found: %d";
+    private static final String USER_NOT_FOUND_MSG = "User not found: %s";
     private static final String EMAIL_DUPLICATE_MSG = "User email already exists: %s";
 
     @Autowired
@@ -56,6 +57,7 @@ class UserControllerTest {
     private UserService userService;
 
     private UserDTO userDTO;
+    private UUID userId;
 
     @BeforeEach
     void setUp() {
@@ -64,6 +66,8 @@ class UserControllerTest {
                 .email("test@test.com")
                 .age(23)
                 .build();
+
+        userId = UUID.randomUUID();
     }
 
     @Test
@@ -224,10 +228,10 @@ class UserControllerTest {
 
     @Test
     void getById_whenUserExists() throws Exception {
-        when(userService.getById(1L))
+        when(userService.getById(userId))
                 .thenReturn(userDTO);
 
-        mockMvc.perform(get(END_POINT + "/{id}", 1L))
+        mockMvc.perform(get(END_POINT + "/{id}", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Masha"))
                 .andExpect(jsonPath("$.email").value("test@test.com"))
@@ -236,20 +240,20 @@ class UserControllerTest {
 
     @Test
     void getById_whenUserNonExists_thanReturn404() throws Exception {
-        when(userService.getById(1L))
-                .thenThrow(new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, 1)));
+        when(userService.getById(userId))
+                .thenThrow(new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
-        mockMvc.perform(get(END_POINT + "/{id}", 1L))
+        mockMvc.perform(get(END_POINT + "/{id}", userId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString("User not found")));
     }
 
     @Test
     void update_whenUserIsValid() throws Exception {
-        when(userService.update(eq(1L), any(UserDTO.class)))
+        when(userService.update(eq(userId), any(UserDTO.class)))
                 .thenReturn(userDTO);
 
-        mockMvc.perform(put(END_POINT + "/{id}", 1L)
+        mockMvc.perform(put(END_POINT + "/{id}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userDTO)))
                 .andExpect(status().isOk())
@@ -260,10 +264,10 @@ class UserControllerTest {
 
     @Test
     void update_whenSameEmailExists_thanBadRequest() throws Exception {
-        when(userService.update(eq(1L), any(UserDTO.class)))
+        when(userService.update(eq(userId), any(UserDTO.class)))
                 .thenThrow(new BadRequestException(String.format(EMAIL_DUPLICATE_MSG, "test@test.com")));
 
-        mockMvc.perform(put(END_POINT + "/{id}", 1L)
+        mockMvc.perform(put(END_POINT + "/{id}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userDTO)))
                 .andExpect(status().isBadRequest())
@@ -272,10 +276,10 @@ class UserControllerTest {
 
     @Test
     void update_whenUserNonExists_thanReturn404() throws Exception {
-        when(userService.update(eq(1L), any(UserDTO.class)))
-                .thenThrow(new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, 1)));
+        when(userService.update(eq(userId), any(UserDTO.class)))
+                .thenThrow(new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
-        mockMvc.perform(put(END_POINT + "/{id}", 1L)
+        mockMvc.perform(put(END_POINT + "/{id}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userDTO)))
                 .andExpect(status().isNotFound())
@@ -284,18 +288,18 @@ class UserControllerTest {
 
     @Test
     void deleteUser_whenUserExists() throws Exception {
-        doNothing().when(userService).delete(1L);
+        doNothing().when(userService).delete(userId);
 
-        mockMvc.perform(delete(END_POINT + "/{id}", 1L))
+        mockMvc.perform(delete(END_POINT + "/{id}", userId))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void delete_whenUserNonExists_thanReturn404() throws Exception {
-        doThrow(new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, 1)))
-                .when(userService).delete(1L);
+        doThrow(new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)))
+                .when(userService).delete(userId);
 
-        mockMvc.perform(delete(END_POINT + "/{id}", 1L))
+        mockMvc.perform(delete(END_POINT + "/{id}", userId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(containsString("User not found")));
     }

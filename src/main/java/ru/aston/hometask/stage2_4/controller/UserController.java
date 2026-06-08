@@ -16,6 +16,7 @@ import ru.aston.hometask.stage2_4.dto.UserDTO;
 import ru.aston.hometask.stage2_4.service.UserService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -35,18 +36,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDTO getById(@PathVariable Long id) {
+    public UserDTO getById(@PathVariable UUID id) {
         return userService.getById(id);
     }
 
     @PutMapping("/{id}")
-    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
+    public UserDTO update(@PathVariable UUID id, @Valid @RequestBody UserDTO dto) {
         return userService.update(id, dto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable UUID id) {
         userService.delete(id);
     }
 }
