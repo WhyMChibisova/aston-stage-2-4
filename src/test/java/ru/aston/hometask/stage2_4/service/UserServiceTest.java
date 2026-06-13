@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.aston.hometask.stage2_4.dao.UserRepository;
-import ru.aston.hometask.stage2_4.dto.UserDTO;
+import ru.aston.hometask.stage2_4.dto.UserDto;
 import ru.aston.hometask.stage2_4.exception.BadRequestException;
 import ru.aston.hometask.stage2_4.exception.ResourceNotFoundException;
 import ru.aston.hometask.stage2_4.model.User;
@@ -39,7 +39,7 @@ class UserServiceTest {
     private UserServiceImpl userService;
 
     private User testUser;
-    private UserDTO userDTO;
+    private UserDto userDTO;
     private UUID userId;
 
     @BeforeEach
@@ -53,7 +53,7 @@ class UserServiceTest {
                 .age(23)
                 .build();
 
-        userDTO = UserDTO.builder()
+        userDTO = UserDto.builder()
                 .name("Masha")
                 .email("test@test.com")
                 .age(23)
@@ -65,7 +65,7 @@ class UserServiceTest {
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
-        UserDTO savedUser = userService.create(userDTO);
+        UserDto savedUser = userService.create(userDTO);
 
         assertNotNull(savedUser);
         assertEquals(userDTO, savedUser);
@@ -90,7 +90,7 @@ class UserServiceTest {
     void findUserById_whenUserExists_thenReturnUser() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
-        UserDTO foundUser = userService.getById(userId);
+        UserDto foundUser = userService.getById(userId);
 
         assertNotNull(foundUser);
         assertEquals(userDTO, foundUser);
@@ -115,7 +115,7 @@ class UserServiceTest {
         );
         when(userRepository.findAll()).thenReturn(users);
 
-        List<UserDTO> actualUsers = userService.getAll();
+        List<UserDto> actualUsers = userService.getAll();
 
         assertEquals(2, actualUsers.size());
         assertEquals(userDTO, actualUsers.get(0));
@@ -127,7 +127,7 @@ class UserServiceTest {
     void findAllUsers_whenUsersNotExist() {
         when(userRepository.findAll()).thenReturn(List.of());
 
-        List<UserDTO> actualUsers = userService.getAll();
+        List<UserDto> actualUsers = userService.getAll();
 
         assertEquals(0, actualUsers.size());
 
@@ -142,7 +142,7 @@ class UserServiceTest {
                 .email("test2@test.com")
                 .age(23)
                 .build();
-        UserDTO updatedUserDTO = UserDTO.builder()
+        UserDto updatedUserDto = UserDto.builder()
                 .name("Masha2")
                 .email("test2@test.com")
                 .age(23)
@@ -152,9 +152,9 @@ class UserServiceTest {
         when(userRepository.findByEmail("test2@test.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
 
-        UserDTO actualUser = userService.update(userId, updatedUserDTO);
+        UserDto actualUser = userService.update(userId, updatedUserDto);
 
-        assertEquals(updatedUserDTO, actualUser);
+        assertEquals(updatedUserDto, actualUser);
 
         verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(1)).findByEmail("test2@test.com");
@@ -182,7 +182,7 @@ class UserServiceTest {
                 .email("test2@test.com")
                 .age(23)
                 .build();
-        UserDTO updatedUserDTO = UserDTO.builder()
+        UserDto updatedUserDto = UserDto.builder()
                 .name("Masha2")
                 .email("test2@test.com")
                 .age(23)
@@ -191,8 +191,8 @@ class UserServiceTest {
         when(userRepository.findByEmail("test2@test.com")).thenReturn(Optional.of(anotherUser));
 
         BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> userService.update(userId, updatedUserDTO));
-        assertEquals(String.format(EMAIL_DUPLICATE_MSG, updatedUserDTO.email()), exception.getMessage());
+                () -> userService.update(userId, updatedUserDto));
+        assertEquals(String.format(EMAIL_DUPLICATE_MSG, updatedUserDto.email()), exception.getMessage());
 
         verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(1)).findByEmail("test2@test.com");

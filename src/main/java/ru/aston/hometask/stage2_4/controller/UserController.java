@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.aston.hometask.stage2_4.dto.UserDTO;
+import ru.aston.hometask.stage2_4.dto.UserDto;
 import ru.aston.hometask.stage2_4.service.UserService;
 
 import java.util.List;
@@ -26,22 +26,22 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public UserDTO create(@Valid @RequestBody UserDTO dto) {
+    public UserDto create(@Valid @RequestBody UserDto dto) {
         return userService.create(dto);
     }
 
     @GetMapping
-    public List<UserDTO> getAll() {
+    public List<UserDto> getAll() {
         return userService.getAll();
     }
 
     @GetMapping("/{id}")
-    public UserDTO getById(@PathVariable UUID id) {
+    public UserDto getById(@PathVariable UUID id) {
         return userService.getById(id);
     }
 
     @PutMapping("/{id}")
-    public UserDTO update(@PathVariable UUID id, @Valid @RequestBody UserDTO dto) {
+    public UserDto update(@PathVariable UUID id, @Valid @RequestBody UserDto dto) {
         return userService.update(id, dto);
     }
 

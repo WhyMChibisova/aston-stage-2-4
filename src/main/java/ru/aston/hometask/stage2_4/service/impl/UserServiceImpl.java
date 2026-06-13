@@ -4,19 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.aston.hometask.stage2_4.dao.UserRepository;
-import ru.aston.hometask.stage2_4.dto.UserDTO;
+import ru.aston.hometask.stage2_4.dto.UserDto;
 import ru.aston.hometask.stage2_4.exception.BadRequestException;
 import ru.aston.hometask.stage2_4.exception.ResourceNotFoundException;
-import ru.aston.hometask.stage2_4.mapper.UserMapper;
 import ru.aston.hometask.stage2_4.model.User;
 import ru.aston.hometask.stage2_4.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import static ru.aston.hometask.stage2_4.mapper.UserMapper.toUserDTO;
+import static ru.aston.hometask.stage2_4.mapper.UserMapper.toListUserDto;
+import static ru.aston.hometask.stage2_4.mapper.UserMapper.toUserDto;
 import static ru.aston.hometask.stage2_4.mapper.UserMapper.toUserEntity;
 
 @Service
@@ -29,34 +28,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO create(UserDTO dto) {
+    public UserDto create(UserDto dto) {
         if (userRepository.findByEmail(dto.email()).isPresent()) {
             throw new BadRequestException(String.format(EMAIL_DUPLICATE_MSG, dto.email()));
         }
         User user = toUserEntity(dto);
-        return toUserDTO(userRepository.save(user));
+        return toUserDto(userRepository.save(user));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserDTO> getAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserMapper::toUserDTO)
-                .collect(Collectors.toList());
+    public List<UserDto> getAll() {
+        return toListUserDto(userRepository.findAll());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UserDTO getById(UUID id) {
+    public UserDto getById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
-        return toUserDTO(user);
+        return toUserDto(user);
     }
 
     @Override
     @Transactional
-    public UserDTO update(UUID id, UserDTO dto) {
+    public UserDto update(UUID id, UserDto dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, id)));
         Optional<User> userByEmail = userRepository.findByEmail(dto.email());
@@ -68,7 +64,7 @@ public class UserServiceImpl implements UserService {
         user.setName(dto.name());
         user.setEmail(dto.email());
         user.setAge(dto.age());
-        return toUserDTO(userRepository.save(user));
+        return toUserDto(userRepository.save(user));
     }
 
     @Override

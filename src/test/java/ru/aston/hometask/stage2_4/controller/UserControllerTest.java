@@ -15,7 +15,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.aston.hometask.stage2_4.dto.UserDTO;
+import ru.aston.hometask.stage2_4.dto.UserDto;
 import ru.aston.hometask.stage2_4.exception.BadRequestException;
 import ru.aston.hometask.stage2_4.exception.ResourceNotFoundException;
 import ru.aston.hometask.stage2_4.service.UserService;
@@ -56,12 +56,12 @@ class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
-    private UserDTO userDTO;
+    private UserDto userDTO;
     private UUID userId;
 
     @BeforeEach
     void setUp() {
-        userDTO = UserDTO.builder()
+        userDTO = UserDto.builder()
                 .name("Masha")
                 .email("test@test.com")
                 .age(23)
@@ -72,7 +72,7 @@ class UserControllerTest {
 
     @Test
     void create_whenDataIsValid() throws Exception {
-        when(userService.create(any(UserDTO.class)))
+        when(userService.create(any(UserDto.class)))
                 .thenReturn(userDTO);
 
         mockMvc.perform(post(END_POINT)
@@ -86,7 +86,7 @@ class UserControllerTest {
 
     @Test
     void create_whenSameEmailExists_thanBadRequest() throws Exception {
-        when(userService.create(any(UserDTO.class)))
+        when(userService.create(any(UserDto.class)))
                 .thenThrow(new BadRequestException(String.format(EMAIL_DUPLICATE_MSG, "test@test.com")));
 
         mockMvc.perform(post(END_POINT)
@@ -98,7 +98,7 @@ class UserControllerTest {
 
     @Test
     void create_whenDataInvalid_thanValidationErrors() throws Exception {
-        UserDTO invalidUser = UserDTO.builder()
+        UserDto invalidUser = UserDto.builder()
                 .name("")
                 .email("email")
                 .age(-1)
@@ -119,7 +119,7 @@ class UserControllerTest {
     @ParameterizedTest
     @MethodSource("invalidSizeNameAndEmail")
     void create_whenInvalidSizeNameAndEmail_thanValidationErrors(String name, String email, String errorField) throws Exception {
-        UserDTO invalidUser = UserDTO.builder()
+        UserDto invalidUser = UserDto.builder()
                 .name(name)
                 .email(email)
                 .age(23)
@@ -143,7 +143,7 @@ class UserControllerTest {
     @NullAndEmptySource
     @ValueSource(strings = { " ", "   " })
     void create_whenNameInvalid_thanValidationErrors(String name) throws Exception {
-        UserDTO invalidUser = UserDTO.builder()
+        UserDto invalidUser = UserDto.builder()
                 .name(name)
                 .email("test@test.com")
                 .age(23)
@@ -160,7 +160,7 @@ class UserControllerTest {
     @NullAndEmptySource
     @ValueSource(strings = { " ", "   ", "test", "test@", "@test", "@test.com" })
     void create_whenEmailInvalid_thanValidationErrors(String email) throws Exception {
-        UserDTO invalidUser = UserDTO.builder()
+        UserDto invalidUser = UserDto.builder()
                 .name("Masha")
                 .email(email)
                 .age(23)
@@ -177,7 +177,7 @@ class UserControllerTest {
     @NullSource
     @ValueSource(ints = { -1, 151 })
     void create_whenAgeInvalid_thanValidationErrors(Integer age) throws Exception {
-        UserDTO invalidUser = UserDTO.builder()
+        UserDto invalidUser = UserDto.builder()
                 .name("Masha")
                 .email("test@test.com")
                 .age(age)
@@ -192,9 +192,9 @@ class UserControllerTest {
 
     @Test
     void getAll_whenUsersExist() throws Exception {
-        List<UserDTO> users = List.of(
+        List<UserDto> users = List.of(
                 userDTO,
-                UserDTO.builder()
+                UserDto.builder()
                         .name("Dima")
                         .email("test2@test.com")
                         .age(22)
@@ -250,7 +250,7 @@ class UserControllerTest {
 
     @Test
     void update_whenUserIsValid() throws Exception {
-        when(userService.update(eq(userId), any(UserDTO.class)))
+        when(userService.update(eq(userId), any(UserDto.class)))
                 .thenReturn(userDTO);
 
         mockMvc.perform(put(END_POINT + "/{id}", userId)
@@ -264,7 +264,7 @@ class UserControllerTest {
 
     @Test
     void update_whenSameEmailExists_thanBadRequest() throws Exception {
-        when(userService.update(eq(userId), any(UserDTO.class)))
+        when(userService.update(eq(userId), any(UserDto.class)))
                 .thenThrow(new BadRequestException(String.format(EMAIL_DUPLICATE_MSG, "test@test.com")));
 
         mockMvc.perform(put(END_POINT + "/{id}", userId)
@@ -276,7 +276,7 @@ class UserControllerTest {
 
     @Test
     void update_whenUserNonExists_thanReturn404() throws Exception {
-        when(userService.update(eq(userId), any(UserDTO.class)))
+        when(userService.update(eq(userId), any(UserDto.class)))
                 .thenThrow(new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG, userId)));
 
         mockMvc.perform(put(END_POINT + "/{id}", userId)
